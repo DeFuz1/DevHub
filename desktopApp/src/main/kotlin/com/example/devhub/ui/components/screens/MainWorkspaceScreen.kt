@@ -1,26 +1,24 @@
 package com.example.devhub.ui.components.screens
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
-
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 import com.example.devhub.ui.components.NavigationSideBar
-
 import com.example.devhub.data.LocalProject
 import com.example.devhub.data.ProjectManager
 import com.example.devhub.data.ProjectConfigRepository
 import com.example.devhub.data.ProjectAnalyzer
-
 
 enum class AppScreen {
     PROJECTS,
@@ -29,7 +27,6 @@ enum class AppScreen {
     SCRIPTS,
     SETTINGS
 }
-
 @Composable
 fun MainWorkspaceScreen() {
     var currentScreen by remember { mutableStateOf(AppScreen.PROJECTS) }
@@ -37,6 +34,7 @@ fun MainWorkspaceScreen() {
     var selectedProject by remember { mutableStateOf<LocalProject?>(null) }
 
     Row(modifier = Modifier.fillMaxSize().background(Color(0xFF2B2B2B))) {
+
         NavigationSideBar(
             currentScreen = currentScreen,
             onScreenSelected = { currentScreen = it }
@@ -47,10 +45,10 @@ fun MainWorkspaceScreen() {
                 modifier = Modifier
                     .width(220.dp)
                     .fillMaxHeight()
-                    .background(Color(0xFF3C3F41))
+                    .background(Color(0xFF424242))
                     .padding(12.dp)
             ) {
-                Text("Мои папки", color = Color(0xFFBBBBBB), fontWeight = FontWeight.Bold)
+                Text("Мои папки", color = Color(0xFF1E1E1E), fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(16.dp))
 
                 projects.forEach { project ->
@@ -63,7 +61,7 @@ fun MainWorkspaceScreen() {
                         Text(
                             text = "• ${project.name}",
                             color = if (isSelected) Color(0xFF4A90E2) else Color(0xFFDFDFDF),
-                            modifier = Modifier.weight(1f).clickable { selectedProject = project }
+                            modifier = Modifier.columnWeight(this@Column, 1f).clickable { selectedProject = project }
                         )
                         Text(
                             text = "❌",
@@ -77,7 +75,8 @@ fun MainWorkspaceScreen() {
                     }
                 }
 
-                Spacer(modifier = Modifier.weight(1f))
+                Spacer(modifier = Modifier.columnWeight(this, 1f))
+
                 Button(
                     onClick = {
                         val selectedPath = ProjectManager.chooseFolderDialog()
@@ -93,11 +92,20 @@ fun MainWorkspaceScreen() {
             }
         }
 
-        Box(modifier = Modifier.weight(1f).fillMaxHeight()) {
-            when (currentScreen) {
-                AppScreen.PROJECTS -> {
-                    Column(modifier = Modifier.fillMaxSize().padding(24.dp)) {
-                        if (selectedProject != null) {
+        Box(modifier = Modifier.rowWeight(this, 1f).fillMaxHeight()) {
+            if (currentScreen != AppScreen.SETTINGS && selectedProject == null) {
+                val placeholderMessage = when (currentScreen) {
+                    AppScreen.PROJECTS -> "Выберите папку слева, чтобы просмотреть информацию о проекте"
+                    AppScreen.NOTES -> "Выберите проект в списке слева, чтобы открыть заметки"
+                    AppScreen.KANBAN -> "Выберите проект слева, чтобы открыть Канбан-доску задач"
+                    AppScreen.SCRIPTS -> "Выберите проект слева, чтобы управлять скриптами автоматизации"
+                    else -> "Выберите проект слева"
+                }
+                ProjectPlaceholder(message = placeholderMessage)
+            } else {
+                when (currentScreen) {
+                    AppScreen.PROJECTS -> {
+                        Column(modifier = Modifier.fillMaxSize().background(Color(0xFF1E1E1E)).padding(24.dp)) {
                             Text("Проект: ${selectedProject!!.name}", style = MaterialTheme.typography.h5, color = Color.White)
                             Spacer(modifier = Modifier.height(24.dp))
 
@@ -116,28 +124,55 @@ fun MainWorkspaceScreen() {
 
                             Text("📅 Добавлен в DevHub:", color = Color.Gray)
                             Text(selectedProject!!.dateAdded, color = Color.LightGray)
-                        } else {
-                            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                Text("Выберите папку слева", color = Color.Gray)
-                            }
                         }
                     }
-                }
-
-
-                AppScreen.SCRIPTS -> {
-                    ScriptsScreen(selectedProject = selectedProject)
-                }
-                AppScreen.NOTES -> {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text("Тут будут полноэкранные заметки", color = Color.White) }
-                }
-                AppScreen.KANBAN -> {
-                    KanbanScreen(selectedProject = selectedProject)
-                }
-                AppScreen.SETTINGS -> {
-                    SettingsScreen()
+                    AppScreen.SCRIPTS -> {
+                        ScriptsScreen(selectedProject = selectedProject)
+                    }
+                    AppScreen.NOTES -> {
+                        NotesScreen(selectedProject = selectedProject)
+                    }
+                    AppScreen.KANBAN -> {
+                        KanbanScreen(selectedProject = selectedProject)
+                    }
+                    AppScreen.SETTINGS -> {
+                        // ИСПРАВЛЕНО: Передаем блок кода (лямбду) внутрь экрана настроек
+                        SettingsScreen(
+                            onResetWorkspace = {
+                                projects = emptyList()       // 1. Очищаем список проектов на экране
+                                selectedProject = null       // 2. Сбрасываем выбранный проект
+                                currentScreen = AppScreen.PROJECTS // 3. Перекидываем пользователя на главную
+                            }
+                        )
+                    }
                 }
             }
         }
     }
+}
+
+@Composable
+fun ProjectPlaceholder(message: String) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFF1E1E1E))
+            .padding(24.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = message,
+            color = Color(0xFF555555),
+            fontSize = 16.sp,
+            lineHeight = 24.sp
+        )
+    }
+}
+
+fun Modifier.columnWeight(scope: ColumnScope, weight: Float): Modifier {
+    return this.then(with(scope) { Modifier.weight(weight) })
+}
+
+fun Modifier.rowWeight(scope: RowScope, weight: Float): Modifier {
+    return this.then(with(scope) { Modifier.weight(weight) })
 }

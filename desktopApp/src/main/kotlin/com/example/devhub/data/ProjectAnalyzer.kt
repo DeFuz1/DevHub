@@ -35,23 +35,50 @@ object ProjectAnalyzer {
     private fun detectFolderTechnologies(folder: File): String {
         val detectedTech = mutableSetOf<String>()
 
+        // Список папок, в которые вообще не нужно заходить
+        val ignoredDirs = setOf("build", "node_modules", ".git", ".gradle", ".idea", "bin", "out")
+
         try {
-            folder.walkTopDown().forEach { file ->
-                // Считаем технологии только в файлах, полностью игнорируя служебные тяжелые папки
-                if (file.isFile && !file.absolutePath.contains("build") && !file.name.startsWith(".")) {
-                    when (file.extension.lowercase()) {
-                        "kt" -> detectedTech.add("Kotlin")
-                        "html", "htm" -> detectedTech.add("HTML5")
-                        "css" -> detectedTech.add("CSS3")
-                        "js", "ts" -> detectedTech.add("JavaScript")
+            folder.walkTopDown()
+                .onEnter { dir ->
+                    // Если имя папки в списке игнорируемых или скрытая — пропускаем всё её содержимое
+                    dir.name !in ignoredDirs && !dir.name.startsWith(".")
+                }
+                .forEach { file ->
+                    if (file.isFile) {
+                        when (file.extension.lowercase()) {
+                            "kt" -> {
+                                detectedTech.add("Kotlin")
+
+                                if ("Jetpack Compose" !in detectedTech && hasComposeImports(file)) {
+                                    detectedTech.add("Jetpack Compose")
+                                }
+                            }
+                            "html", "htm" -> detectedTech.add("HTML")
+                            "css" -> detectedTech.add("CSS")
+                            "js", "ts" -> detectedTech.add("JavaScript")
+                        }
                     }
                 }
-            }
         } catch (e: Exception) {
             println("Ошибка сканирования папки: ${e.message}")
         }
 
-        // Если кодовых файлов нет, пишем Не определено, иначе соединяем через запятую
         return if (detectedTech.isEmpty()) "Не определено" else detectedTech.joinToString(", ")
+    }
+
+    // Быстрая проверка файла на наличие импортов Compose
+    private fun hasComposeImports(file: File): Boolean {
+        return try {
+            file.useLines { lines ->
+                // Читаем файл построчно, пока не найдем нужный импорт
+                lines.any { line ->
+                    line.startsWith("import androidx.compose.") ||
+                            line.startsWith("import androidx.activity.compose.")
+                }
+            }
+        } catch (e: Exception) {
+            false
+        }
     }
 }

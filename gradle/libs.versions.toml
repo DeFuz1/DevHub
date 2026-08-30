@@ -1,10 +1,11 @@
 [versions]
-androidx-lifecycle = "2.11.0-beta01"
-composeMultiplatform = "1.11.1"
+androidx-lifecycle = "2.8.4"
+composeMultiplatform = "1.6.11"
 junit = "4.13.2"
-kotlin = "2.4.10"
-kotlinx-coroutines = "1.11.0"
-material3 = "1.11.0-alpha07"
+kotlin = "2.0.20"
+kotlinx-coroutines = "1.8.1"
+material3 = "1.6.11"
+uiDesktop = "1.6.11"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -19,6 +20,7 @@ compose-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "composeMul
 compose-components-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "composeMultiplatform" }
 compose-uiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "composeMultiplatform" }
 kotlinx-coroutinesSwing = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-swing", version.ref = "kotlinx-coroutines" }
+androidx-ui-desktop = { group = "org.jetbrains.compose.ui", name = "ui-desktop", version.ref = "uiDesktop" }
 
 [plugins]
 composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "composeMultiplatform" }

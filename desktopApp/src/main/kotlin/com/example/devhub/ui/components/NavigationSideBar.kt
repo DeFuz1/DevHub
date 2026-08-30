@@ -29,7 +29,7 @@ fun NavigationSideBar(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        // 1. Проекты (Иконка Книг / Архива)
+        // 1. Проекты
         val projectsColor = if (currentScreen == AppScreen.PROJECTS) Color.White else Color(0xFF666666)
         TextButton(
             onClick = { onScreenSelected(AppScreen.PROJECTS) },
@@ -38,7 +38,16 @@ fun NavigationSideBar(
             Text(text = "📁", fontSize = 24.sp, fontWeight = FontWeight.Bold)
         }
 
-        // 2. Канбан-доска (Иконка Блокнота с галочкой)
+        // 2. Заметки
+        val notesColor = if (currentScreen == AppScreen.NOTES) Color.White else Color(0xFF666666)
+        TextButton(
+            onClick = { onScreenSelected(AppScreen.NOTES) },
+            colors = ButtonDefaults.textButtonColors(contentColor = notesColor)
+        ) {
+            Text(text = "📝", fontSize = 24.sp, fontWeight = FontWeight.Bold)
+        }
+
+        // 2. Канбан-доска
         val kanbanColor = if (currentScreen == AppScreen.KANBAN) Color.White else Color(0xFF666666)
         TextButton(
             onClick = { onScreenSelected(AppScreen.KANBAN) },
@@ -47,7 +56,7 @@ fun NavigationSideBar(
             Text(text = "📋", fontSize = 24.sp, fontWeight = FontWeight.Bold)
         }
 
-        // 3. Скрипты (Иконка Молнии автоматизации)
+        // 3. Скрипты
         val scriptsColor = if (currentScreen == AppScreen.SCRIPTS) Color.White else Color(0xFF666666)
         TextButton(
             onClick = { onScreenSelected(AppScreen.SCRIPTS) },
@@ -59,7 +68,7 @@ fun NavigationSideBar(
         // Пружина, выталкивающая шестеренку вниз
         Spacer(modifier = Modifier.weight(1f))
 
-        // 4. Настройки (Иконка Инструментов)
+        // 4.
         val settingsColor = if (currentScreen == AppScreen.SETTINGS) Color.White else Color(0xFF666666)
         TextButton(
             onClick = { onScreenSelected(AppScreen.SETTINGS) },

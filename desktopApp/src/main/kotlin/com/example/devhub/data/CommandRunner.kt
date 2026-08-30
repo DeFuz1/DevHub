@@ -2,10 +2,9 @@ package com.example.devhub.data
 
 import java.io.File
 
-// Чистая утилита для работы с операционной системой.
-// runConsoleCommand, которая дергает ProcessBuilder для запуска терминала или проводника
-
 object CommandRunner {
+
+    // Метод 1: Для открытия папки через встроенные утилиты ОС (например, explorer)
     fun runConsoleCommand(projectPath: String, command: String) {
         val isWindows = System.getProperty("os.name").lowercase().contains("win")
         val commandParts = if (isWindows) {
@@ -22,6 +21,16 @@ object CommandRunner {
                 .start()
         } catch (e: Exception) {
             println("Не удалось запустить команду: ${e.message}")
+        }
+    }
+
+    // Метод 2: Новый метод специально для запуска IDE по кастомному пути пользователя
+    fun openProjectInIde(idePath: String, projectPath: String) {
+        try {
+            // Запускаем указанный .exe файл и передаем ему путь к проекту как аргумент
+            ProcessBuilder(idePath, projectPath).start()
+        } catch (e: Exception) {
+            println("Не удалось открыть проект по указанному пути IDE: ${e.message}")
         }
     }
 }
